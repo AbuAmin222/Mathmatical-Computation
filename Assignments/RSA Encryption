@@ -1,0 +1,92 @@
+import java.util.Scanner;
+
+public class RSAEncryption {
+
+    public static boolean isOddPrime(int n) {
+        if (n < 2 || n % 2 == 0) return false;
+        for (int i = 3; i * i <= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+
+    public static int gcd(int a, int b) {
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    public static boolean conditions(int p, int q, int e) {
+        if (!isOddPrime(p) || !isOddPrime(q)) {
+            System.out.println("Choose odd prime numbers.");
+            return false;
+        }
+        int phi = (p - 1) * (q - 1);
+        if (gcd(e, phi) != 1) {
+            System.out.println("e is not relatively prime to (p-1)*(q-1).");
+            return false;
+        }
+        return true;
+    }
+
+    public static String RSAEncryption(String text, int e, int p, int q, int begin) {
+        if (!conditions(p, q, e)) {
+            return "Invalid inputs. reenter with read RSA-Encryption requirements";
+        }
+
+        int n = p * q;
+        int count = 26;
+        String[][] data = new String[count][2];
+        for (int i = 0; i < count; i++) {
+            data[i][0] = String.valueOf((char) ('A' + i));
+            data[i][1] = String.format("%02d", begin + i);
+        }
+
+        text = text.toUpperCase();
+        String encode = "";
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+
+            String number = "";
+            for (int j = 0; j < data.length; j++) {
+                if (data[j][0].equals(String.valueOf(ch))) {
+                    number = data[j][1];
+                    break;
+                }
+            }
+
+            int m = Integer.parseInt(number);
+            int c = (int) (Math.pow(m, e) % n);
+
+            for (int k = 0; k < data.length; k++) {
+                if (Integer.parseInt(data[k][1]) == c) {
+                    encode += data[k][0];
+                    break;
+                }
+            }
+        }
+
+        return encode;
+    }
+
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+        System.out.print("Enter text: ");
+        String text = s.nextLine();
+        System.out.print("Enter e (power number): ");
+        int e = s.nextInt();
+        System.out.print("Enter p (but odd prime): ");
+        int p = s.nextInt();
+        System.out.print("Enter q (but odd prime): ");
+        int q = s.nextInt();
+        System.out.print("Enter begin number (samples: <0, 1, 2, 3, 4, 5, .....etc>): ");
+        int begin = s.nextInt();
+
+        String result = RSAEncryption(text, e, p, q, begin);
+        System.out.println("The message was decrypted is: " + result);
+    }
+}
